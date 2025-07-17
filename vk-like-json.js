@@ -1,6 +1,6 @@
 // === Настройки ===
 const INTERVAL = 2500; // Интервал между кликами (в мс)
-const MAX_PROFILES = 3; // Максимальное количество профилей для сбора
+const MAX_PROFILES = 50; // Максимальное количество профилей для сбора
 let collectedProfiles = []; // Массив для хранения профилей
 let intervalId; // Идентификатор интервала
 
@@ -8,19 +8,27 @@ let intervalId; // Идентификатор интервала
 function collectProfileData() {
   return {
     timestamp: new Date().toISOString(),
+    status: getAriaLabel('.otTddpCo[aria-label*="Была"]') || 'Не указано', // Статус "Была сегодня"
     name: getText('.MWrUXww6') || 'Не указано',
     age: getText('.ozp3w7rI')?.replace(',', '') || 'Не указано',
-    status: getAriaLabel('.otTddpCo > h5') || 'Не указано',
-    distance: getAriaLabel('[aria-label*="км"]') || 'Не указано',
-    zodiac: getText('[href="#zodiac_cancer_outline_20"]') || 'Не указано',
-    relationship: getText('.rLkDJZ6_ .vkuiFootnote__host') || 'Не указано',
-    height: getText('[href="#fullscreen_outline_20"]') || 'Не указано',
-    alcohol: getText('[href="#wineglass_outline_20"]') || 'Не указано',
-    smoking: getText('[href="#cigarette_outline_20"]') || 'Не указано',
-    education: getText('.vkuiMiniInfoCell__content') || 'Не указано',
-    job: [...document.querySelectorAll('.vkuiMiniInfoCell__content')].slice(1)[0]?.textContent.trim() || 'Не указано',
-    interests: [...document.querySelectorAll('.XFSXm_iw h5')].map(el => el.textContent.trim()),
-    music: [...document.querySelectorAll('.otTddpCo h5')].map(el => el.textContent.trim())
+    distance: getAriaLabel('[aria-label*="км"]') || 'Не указано', // Расстояние
+    zodiac: getText('[href*="zodiac_"] h5') || 'Не указано', // Зодиак
+    relationship: getText('.rLkDJZ6_ .vkuiFootnote__host') || 'Не указано', // Цель отношений
+    height: getText('[href="#fullscreen_outline_20"] + h5') || 'Не указано', // Рост
+    alcohol: getText('[href="#wineglass_outline_20"] + h5') || 'Не указано', // Отношение к алкоголю
+    smoking: getText('[href="#cigarette_outline_20"] + h5') || 'Не указано', // Курение
+    education: getText('.vkuiMiniInfoCell__content:nth-of-type(1)') || 'Не указано', // Образование
+    job: getText('.vkuiMiniInfoCell__content:nth-of-type(2)') || 'Не указано', // Работа
+    interests: [...document.querySelectorAll('.XFSXm_iw h5')].filter(el => {
+      // Исключаем элементы с "Была", "км", "см", "Редко", "Не курю"
+      const text = el.textContent.trim();
+      return !/Была|км|см|Редко|Не курю|Не пью|Нет детей|Держу форму|Свободна/.test(text);
+    }).map(el => el.textContent.trim()), // Интересы
+    music: [...document.querySelectorAll('.otTddpCo h5')].filter(el => {
+      // Исключаем элементы с "Была", "км", "см", "Редко"
+      const text = el.textContent.trim();
+      return !/Была|км|см|Редко/.test(text);
+    }).map(el => el.textContent.trim()) // Музыка
   };
 }
 
